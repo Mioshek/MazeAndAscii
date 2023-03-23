@@ -5,9 +5,10 @@ import imgui.*
 import org.lwjgl.glfw.GLFW
 import window.*
 
-class SettingsWindow(val frame: Frame) {
+class SettingsWindow(val frame: Frame, val layout: Layout) {
     var selected = false
     private val resolutions = sortedMapOf<String, Boolean>()
+    lateinit var selectedResolution: WindowSize
     val config = Config()
     init {
         resolutions["1.SD"] = false
@@ -17,7 +18,9 @@ class SettingsWindow(val frame: Frame) {
         resolutions["5.UHD"] = false
     }
 
-    fun runSettingsWindow(){
+    fun isSelectedResolutionInitialized() = ::selectedResolution.isInitialized
+
+    fun runSettingsWindow(fontSize: Int){
         ImGui.begin("Settings")
         ImGui.setWindowSize(config.width.toFloat()/2, config.height.toFloat()/2)
         ImGui.text("Choose Window Resolution")
@@ -35,9 +38,8 @@ class SettingsWindow(val frame: Frame) {
             resolutions.forEach {
                 if(it.value){
                     val resolutionName = it.key.split(".")[1]
-                    val selectedResolution = WindowSize.equals(resolutionName)
+                    selectedResolution = WindowSize.equals(resolutionName)
                     GLFW.glfwSetWindowSize(WindowBase.windowPtr,selectedResolution.width, selectedResolution.height)
-                    println("resized")
                 }
             }
         }
