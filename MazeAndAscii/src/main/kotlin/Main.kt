@@ -4,12 +4,12 @@ import window.*
 import window.layout.Layout
 
 class Frame: WindowBase() {
-    lateinit var fontsLoader: FontsLoader
+    private lateinit var fontsLoader: FontsLoader
     private lateinit var layout: Layout
 
     override fun initImGui() { //During start
         ImGui.createContext()
-        fontsLoader = FontsLoader(10, 30)
+        fontsLoader = FontsLoader(1, 30)
         layout = Layout(this, fontsLoader)
         fontsLoader.loadFonts()
         fontsLoader.setDefaultFont(15)
@@ -29,5 +29,8 @@ fun main() {
 
 /**
 USEFUL REFERENCE LINKS:
- * https://oprypin.github.io/crystal-imgui/ImGui/ImGuiCol.html Coloring GUI docs
+ * https://oprypin.github.io/crystal-imgui/ImGui/ImGuiCol.html Coloring GUI Elements docs
 **/
+// TODO:
+// Fix characters that take more space in single character field in textfield like $ B @
+// Fix radio buttons to make generating ascii image only when it's selected not while selecting next
