@@ -84,9 +84,12 @@ class UnconvertedImage{
             else if (imageName in availableImages){
                 val currentButton = ImGui.radioButton(relativeImagePath, availableImages[imageName]!!)
                 if (currentButton){
+
                     availableImages[imageName] = !availableImages[imageName]!!
                     ButtonManager.changeGroupValue(imageName, availableImages)
-                    wasImageChanged = true
+                    if (availableImages[imageName] == true){
+                        wasImageChanged = true
+                    }
                 }
 
             }
