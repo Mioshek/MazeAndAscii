@@ -1,52 +1,16 @@
 import imgui.ImGui
 import org.lwjgl.opengl.GL30
-import window.layout.ButtonsHandling
-import java.io.File
+import java.awt.image.BufferedImage
 import java.io.IOException
 import java.nio.ByteBuffer
-import javax.imageio.ImageIO
 
 class Images {
-}
-
-class Ascii{
-    private val projectPath = System.getProperty("user.dir")
-    private val imagesPath = "$projectPath/src/main/resources/AsciiImages"
-    private val imagesPathLastIndex = imagesPath.length
-    val availableImages = sortedMapOf<String, Boolean>()
-
-
-    fun maintainRadioButtons(){
-        File(imagesPath).walkTopDown().forEach {
-
-            val imageName = it.toString()
-            val relativeImagePath = imageName.subSequence(imagesPathLastIndex, imageName.length).toString()
-            if (canBeCreated(relativeImagePath, imageName)){
-                availableImages[imageName] = ImGui.radioButton(relativeImagePath, false)
-            }
-            else if (imageName in availableImages){
-                val currentButton = ImGui.radioButton(relativeImagePath, availableImages[imageName]!!)
-                if (currentButton){
-                    availableImages[imageName] = !availableImages[imageName]!!
-                    ButtonsHandling.changeGroupValue(imageName, availableImages)
-                }
-            }
-        }
-    }
-
-    private fun canBeCreated(path: String, filename: String): Boolean {
-        return path.isNotEmpty() && filename !in availableImages.keys
-    }
-}
-
-class ImageConverter{
     //static to be more specific
     companion object{
         //Source but written in Java
         //https://stackoverflow.com/questions/59856706/how-can-i-load-bufferedimage-as-opengl-texture
         @Throws(IOException::class)
-        fun convertBufferedImageToIntId(path: String): Int  {
-            val image = ImageIO.read(File(path))
+        fun convertBufferedImageToIntId(image: BufferedImage): Int  {
             val width = image.width; val height = image.height
             val pixels = image.getRGB(0, 0, width, height, null, 0, width)
 

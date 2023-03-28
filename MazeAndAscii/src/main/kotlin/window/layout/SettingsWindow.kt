@@ -4,6 +4,7 @@ import Frame
 import imgui.*
 import org.lwjgl.glfw.GLFW
 import window.*
+import window.buttons.ButtonManager
 
 class SettingsWindow(val frame: Frame, val layout: Layout) {
     var selected = false
@@ -24,14 +25,8 @@ class SettingsWindow(val frame: Frame, val layout: Layout) {
         ImGui.begin("Settings")
         ImGui.setWindowSize(config.width.toFloat()/2, config.height.toFloat()/2)
         ImGui.text("Choose Window Resolution")
-        for (resolution in resolutions){
-            val resButton = ImGui.radioButton(resolution.key, resolution.value)
-            if (resButton){
-                resolutions[resolution.key] = !resolutions[resolution.key]!!
-                ButtonsHandling.changeGroupValue(resolution.key, resolutions)
-            }
-
-        }
+        ButtonManager.maintainRadioButtons(resolutions)
+        
         val submitButton = ImGui.button("Submit")
         if (submitButton){
             selected = true

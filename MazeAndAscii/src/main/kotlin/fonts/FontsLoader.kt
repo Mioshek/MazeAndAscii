@@ -5,7 +5,7 @@ import imgui.ImGuiIO
 
 class FontsLoader(private val minSize: Int, private val maxSize: Int) {
     private val gruppoFonts = mutableListOf<ImFont>()
-    private val gruppoVectorFont = this.javaClass.getResourceAsStream("/fonts/Gruppo/Gruppo-Regular.ttf").readAllBytes()
+    private val gruppoVectorFont = this.javaClass.getResourceAsStream("/fonts/Chakra_Petch/ChakraPetch-Regular.ttf").readAllBytes()
     private val imIO: ImGuiIO = ImGui.getIO()
     private val atlas: ImFontAtlas = imIO.fonts
 

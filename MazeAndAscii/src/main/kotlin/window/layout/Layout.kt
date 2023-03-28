@@ -1,10 +1,14 @@
 package window.layout
 
-import Ascii
 import Frame
+import Images
+import ascii_converter.AsciiConverter
+import ascii_converter.UnconvertedImage
 import fonts.FontsLoader
 import imgui.ImGui
 import imgui.ImVec2
+import java.io.File
+import javax.imageio.ImageIO
 
 
 class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
@@ -13,7 +17,7 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     private val availableGridsVertically: Int = 9
     private var singleGridWidth: Float = 0f
     private var singleGridHeight: Float = 0f
-    private val ascii = Ascii()
+    private val ascii = UnconvertedImage()
     private val settingsWindow = SettingsWindow(window, this)
     val style = ImGui.getStyle()
     val maze = Array(10){BooleanArray(10){false}}
@@ -26,9 +30,9 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
         }
         else{
             showOriginalImage(15)
-            chooseImage(15)
+            showImageChooser(15)
             showMaze(1,1)
-            showAsciiImage(15)
+            showAsciiImage(2)
         }
     }
 
@@ -37,13 +41,13 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
         singleGridHeight = (settingsWindow.selectedResolution.height/availableGridsVertically).toFloat()
     }
 
-    private fun chooseImage(fontSize: Int){
+    private fun showImageChooser(fontSize: Int){
         fontsLoader.changeFontSize(fontSize)
 
         ImGui.begin("Image Chooser")
         ImGui.setWindowPos(0f, 0f)
         ImGui.setWindowSize(singleGridWidth * 2,singleGridHeight * 4)
-        ascii.maintainRadioButtons()
+        ascii.chooseImage()
         ImGui.end()
         fontsLoader.popFont()
     }
@@ -56,8 +60,10 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
 
         ascii.availableImages.forEach {
             if(it.value){
-                val imageId = ImageConverter.convertBufferedImageToIntId(it.key)
-                ImGui.image(imageId, singleGridWidth * 6, singleGridHeight * 3)
+                val image = ImageIO.read(File(it.key))
+                ascii.chosenImage = image
+                val imageId = Images.convertBufferedImageToIntId(image)
+                ImGui.image(imageId, image.width.toFloat(), image.height.toFloat())
             }
         }
         ImGui.end()
@@ -71,8 +77,10 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
 
         ImGui.setWindowPos(singleGridWidth* 8.5f, 0f)
         ImGui.setWindowSize(singleGridWidth * 7.5f, singleGridHeight * 7.5f)
-        ImGui.text("hi")
-
+        if(ascii.isChosenImageInitiated() && UnconvertedImage.wasImageChanged){
+            AsciiConverter.convertToAscii(ascii.chosenImage)
+        }
+        ImGui.text(AsciiConverter.finalAsciiImage)
         ImGui.end()
         fontsLoader.popFont()
     }
