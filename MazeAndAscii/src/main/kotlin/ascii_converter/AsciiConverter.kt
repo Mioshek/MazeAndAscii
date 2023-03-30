@@ -2,59 +2,74 @@ package ascii_converter
 
 import imgui.ImGui
 import window.buttons.ButtonManager
+import java.awt.Button
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 import java.io.File
+import java.lang.StringBuilder
+import javax.imageio.ImageIO
 
 
 class AsciiConverter() {
 
     companion object{
         var finalAsciiImage = ""
-        private var hasAlphaChannel = false
         private val ASCII_CHARACTERS = "    `^\\,:;Il!i~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$".toCharArray()
-        private const val ARGB_MAX_BRIGHTNESS = 1020f // 4*255
+        private const val ARGB_MAX_BRIGHTNESS = 765f // 3*255
 
 
         fun convertToAscii(image: BufferedImage) {
-            finalAsciiImage = ""
-            val pixels = (image.raster.dataBuffer as DataBufferByte).data
+            val start = System.currentTimeMillis()
+            val pixels = (image.raster.dataBuffer as DataBufferByte).data // contains r g b pixels separate or a r g b
             val cols = image.width
             val rows = image.height
+            val pixelsLength = cols * rows
+            val imageArr = CharArray(pixelsLength * 2 + cols){' '}
             val hasAlphaChannel = image.alphaRaster != null
             var pos = 0
-            for(row in 0 until rows){
-                for (col in 0 until cols){
-                    var argb = 0
-
-                    if (hasAlphaChannel){
-                        argb += pixels[pos].toInt() and 0xff // alpha
-                        argb += pixels[pos + 1].toInt() and 0xff // blue
-
-                        argb += pixels[pos + 2].toInt() and 0xff // green
-
-                        argb += pixels[pos + 3].toInt() and 0xff // red
-                        pos += 4
-                    }
-                    else{
-                        argb += 255 // alpha
-                        argb += pixels[pos].toInt() and 0xff // blue
-
-                        argb += pixels[pos + 1].toInt() and 0xff // green
-
-                        argb += pixels[pos + 2].toInt() and 0xff // red
-                        pos +=3
-                    }
-
+            var readyImageIterator = 0
+            if (hasAlphaChannel){ //for ex. .png file
+                for (i in 0 until pixelsLength){
+                    var argb = 1
+                    argb += pixels[pos + 1].toInt() and 0xff // blue
+                    argb += pixels[pos + 2].toInt() and 0xff // green
+                    argb += pixels[pos + 3].toInt() and 0xff // red
+                    pos += 4
                     val brightnessIntensity = ASCII_CHARACTERS.size / ARGB_MAX_BRIGHTNESS
                     val asciiIndex = (argb * brightnessIntensity -1).toInt()
                     val singlePixelInAscii = ASCII_CHARACTERS[asciiIndex]
-                    finalAsciiImage += singlePixelInAscii
-                    finalAsciiImage += singlePixelInAscii
+                    imageArr[readyImageIterator] = singlePixelInAscii
+                    imageArr[readyImageIterator + 1] = singlePixelInAscii
+                    readyImageIterator +=2
+                    if (i % cols == 0){
+                        imageArr[readyImageIterator] = '\n'
+                        readyImageIterator += 1
+                    }
+                /*ascii field is a rectangle and to make image close to square 2 characters are needed*/
+                }
+            }
+            else{ // .jpg .jpeg
+                for (i in 0 until pixelsLength){
+                    var argb = 1
+                    argb += pixels[pos].toInt() and 0xff // blue
+                    argb += pixels[pos + 1].toInt() and 0xff // green
+                    argb += pixels[pos + 2].toInt() and 0xff // red
+                    pos +=3
+                    val brightnessIntensity = ASCII_CHARACTERS.size / ARGB_MAX_BRIGHTNESS
+                    val asciiIndex = (argb * brightnessIntensity -1).toInt()
+                    val singlePixelInAscii = ASCII_CHARACTERS[asciiIndex]
+                    imageArr[readyImageIterator] = singlePixelInAscii
+                    imageArr[readyImageIterator + 1] = singlePixelInAscii
+                    readyImageIterator +=2
+                    if (i % cols == 0){
+                        imageArr[readyImageIterator] = '\n'
+                        readyImageIterator += 1
+                    }
                     /*ascii field is a rectangle and to make image close to square 2 characters are needed*/
                 }
-                finalAsciiImage += "\n"
             }
+            finalAsciiImage = String(imageArr)
+            println((System.currentTimeMillis() - start))
         }
     }
 
@@ -73,7 +88,6 @@ class UnconvertedImage{
 
 
     fun chooseImage(){
-        wasImageChanged = false
         File(imagesPath).walkTopDown().forEach {
 
             val imageName = it.toString()
@@ -84,10 +98,10 @@ class UnconvertedImage{
             else if (imageName in availableImages){
                 val currentButton = ImGui.radioButton(relativeImagePath, availableImages[imageName]!!)
                 if (currentButton){
-
-                    availableImages[imageName] = !availableImages[imageName]!!
+                    availableImages[imageName] = true
                     ButtonManager.changeGroupValue(imageName, availableImages)
                     if (availableImages[imageName] == true){
+                        chosenImage = ImageIO.read(File(imageName))
                         wasImageChanged = true
                     }
                 }
