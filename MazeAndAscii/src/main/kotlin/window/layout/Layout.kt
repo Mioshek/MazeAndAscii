@@ -12,27 +12,26 @@ import javax.imageio.ImageIO
 
 
 class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
-    private lateinit var windowResolution: ImVec2
     private val availableGridsHorizontally: Int = 16
     private val availableGridsVertically: Int = 9
     private var singleGridWidth: Float = 0f
     private var singleGridHeight: Float = 0f
     private val ascii = UnconvertedImage()
     private val settingsWindow = SettingsWindow(window, this)
-    val style = ImGui.getStyle()
-    val maze = Array(10){BooleanArray(10){false}}
+    private val style = ImGui.getStyle()
+    private val maze = Array(10){BooleanArray(10){false}}
 
     fun showLayout(){
         if (!settingsWindow.selected){
             settingsWindow.runSettingsWindow(15)
             if (settingsWindow.isSelectedResolutionInitialized())
-            getMainWindowResolution()
+                getMainWindowResolution()
         }
         else{
             showOriginalImage(15)
             showImageChooser(15)
             showMaze(1,1)
-            showAsciiImage(2)
+            showAsciiImage(3)
         }
     }
 
@@ -42,7 +41,7 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     }
 
     private fun showImageChooser(fontSize: Int){
-        fontsLoader.changeFontSize(fontSize)
+        fontsLoader.changeFontSize(fontSize, "gruppo")
 
         ImGui.begin("Image Chooser")
         ImGui.setWindowPos(0f, 0f)
@@ -53,40 +52,38 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     }
 
     private fun showOriginalImage(fontSize: Int){
-        fontsLoader.changeFontSize(fontSize)
+        fontsLoader.changeFontSize(fontSize, "gruppo")
         ImGui.begin("Original Image")
         ImGui.setWindowPos(singleGridWidth * 2, 0f,)
         ImGui.setWindowSize(singleGridWidth * 6.5f, singleGridHeight * 4)
-
-        ascii.availableImages.forEach {
-            if(it.value){
-                val image = ImageIO.read(File(it.key))
-                ascii.chosenImage = image
-                val imageId = Images.convertBufferedImageToIntId(image)
-                ImGui.image(imageId, image.width.toFloat(), image.height.toFloat())
-            }
+        if (ascii.isChosenImageInitiated()){
+            val bufferedImage = ascii.chosenImage
+            val imageId = Images.convertBufferedImageToIntId(bufferedImage)
+            ImGui.image(imageId, bufferedImage.width.toFloat(), bufferedImage.height.toFloat())
         }
         ImGui.end()
-
         fontsLoader.popFont()
     }
 
     private fun showAsciiImage(fontSize: Int){
-        fontsLoader.changeFontSize(fontSize)
+        fontsLoader.changeFontSize(15, "gruppo")
         ImGui.begin("Converted To Ascii")
-
+        fontsLoader.popFont()
+        fontsLoader.changeFontSize(fontSize, "jbrains")
         ImGui.setWindowPos(singleGridWidth* 8.5f, 0f)
         ImGui.setWindowSize(singleGridWidth * 7.5f, singleGridHeight * 7.5f)
         if(ascii.isChosenImageInitiated() && UnconvertedImage.wasImageChanged){
             AsciiConverter.convertToAscii(ascii.chosenImage)
+            UnconvertedImage.wasImageChanged = false
         }
         ImGui.text(AsciiConverter.finalAsciiImage)
-        ImGui.end()
         fontsLoader.popFont()
+        ImGui.end()
+
     }
 
     private fun showMaze(width: Int, height: Int){
-        fontsLoader.changeFontSize(15)
+        fontsLoader.changeFontSize(15,"gruppo")
 
         ImGui.begin("Maze")
         ImGui.setWindowPos(0f,singleGridHeight * 4)

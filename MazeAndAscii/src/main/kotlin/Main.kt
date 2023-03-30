@@ -30,7 +30,5 @@ fun main() {
 /**
 USEFUL REFERENCE LINKS:
  * https://oprypin.github.io/crystal-imgui/ImGui/ImGuiCol.html Coloring GUI Elements docs
-**/
+ **/
 // TODO:
-// Fix characters that take more space in single character field in textfield like $ B @
-// Fix radio buttons to make generating ascii image only when it's selected not while selecting next

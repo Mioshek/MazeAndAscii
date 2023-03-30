@@ -26,7 +26,7 @@ class SettingsWindow(val frame: Frame, val layout: Layout) {
         ImGui.setWindowSize(config.width.toFloat()/2, config.height.toFloat()/2)
         ImGui.text("Choose Window Resolution")
         ButtonManager.maintainRadioButtons(resolutions)
-        
+
         val submitButton = ImGui.button("Submit")
         if (submitButton){
             selected = true
