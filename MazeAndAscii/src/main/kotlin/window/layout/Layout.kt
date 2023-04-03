@@ -6,10 +6,6 @@ import ascii_converter.AsciiConverter
 import ascii_converter.UnconvertedImage
 import fonts.FontsLoader
 import imgui.ImGui
-import imgui.ImVec2
-import java.io.File
-import javax.imageio.ImageIO
-
 
 class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     private val availableGridsHorizontally: Int = 16
@@ -17,7 +13,7 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     private var singleGridWidth: Float = 0f
     private var singleGridHeight: Float = 0f
     private val ascii = UnconvertedImage()
-    private val settingsWindow = SettingsWindow(window, this)
+    private val settingsWindow = SettingsWindow()
     private val style = ImGui.getStyle()
     private val maze = Array(10){BooleanArray(10){false}}
 
@@ -54,7 +50,7 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     private fun showOriginalImage(fontSize: Int){
         fontsLoader.changeFontSize(fontSize, "gruppo")
         ImGui.begin("Original Image")
-        ImGui.setWindowPos(singleGridWidth * 2, 0f,)
+        ImGui.setWindowPos(singleGridWidth * 2, 0f)
         ImGui.setWindowSize(singleGridWidth * 6.5f, singleGridHeight * 4)
         if (ascii.isChosenImageInitiated()){
             val bufferedImage = ascii.chosenImage

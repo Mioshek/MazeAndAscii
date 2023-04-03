@@ -1,16 +1,15 @@
 package window.layout
 
-import Frame
 import imgui.*
 import org.lwjgl.glfw.GLFW
 import window.*
 import window.buttons.ButtonManager
 
-class SettingsWindow(val frame: Frame, val layout: Layout) {
+class SettingsWindow {
     var selected = false
     private val resolutions = sortedMapOf<String, Boolean>()
     lateinit var selectedResolution: WindowSize
-    val config = Config()
+    private val config = Config()
     init {
         resolutions["1.SD"] = false
         resolutions["2.HD"] = true

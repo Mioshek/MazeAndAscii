@@ -32,3 +32,5 @@ USEFUL REFERENCE LINKS:
  * https://oprypin.github.io/crystal-imgui/ImGui/ImGuiCol.html Coloring GUI Elements docs
  **/
 // TODO:
+// Maze logic and displaying
+//

@@ -10,7 +10,7 @@ class Config {
 
     val title = "ImGui Window"
     var fullscreen = false; var resizable = true;  var decorated = true
-    val resolution = WindowSize.HD
+    private val resolution = WindowSize.HD
     var width = resolution.width; var height = resolution.height
 }
 

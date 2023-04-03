@@ -2,29 +2,27 @@ package ascii_converter
 
 import imgui.ImGui
 import window.buttons.ButtonManager
-import java.awt.Button
 import java.awt.image.BufferedImage
 import java.awt.image.DataBufferByte
 import java.io.File
-import java.lang.StringBuilder
 import javax.imageio.ImageIO
 
 
-class AsciiConverter() {
+class AsciiConverter {
 
     companion object{
         var finalAsciiImage = ""
         private val ASCII_CHARACTERS = "    `^\\,:;Il!i~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$".toCharArray()
         private const val ARGB_MAX_BRIGHTNESS = 765f // 3*255
 
-
         fun convertToAscii(image: BufferedImage) {
-            val start = System.currentTimeMillis()
+//            val start = System.currentTimeMillis()
             val pixels = (image.raster.dataBuffer as DataBufferByte).data // contains r g b pixels separate or a r g b
             val cols = image.width
             val rows = image.height
             val pixelsLength = cols * rows
-            val imageArr = CharArray(pixelsLength * 2 + cols){' '}
+            val imageArr = CharArray(pixelsLength * 2 + rows){' '}
+            println(imageArr.size)
             val hasAlphaChannel = image.alphaRaster != null
             var pos = 0
             var readyImageIterator = 0
@@ -40,16 +38,17 @@ class AsciiConverter() {
                     val singlePixelInAscii = ASCII_CHARACTERS[asciiIndex]
                     imageArr[readyImageIterator] = singlePixelInAscii
                     imageArr[readyImageIterator + 1] = singlePixelInAscii
-                    readyImageIterator +=2
+                    /*ascii field is a rectangle and to make image close to square 2 characters are needed*/
+                    readyImageIterator += 2
                     if (i % cols == 0){
                         imageArr[readyImageIterator] = '\n'
                         readyImageIterator += 1
                     }
-                /*ascii field is a rectangle and to make image close to square 2 characters are needed*/
                 }
             }
             else{ // .jpg .jpeg
                 for (i in 0 until pixelsLength){
+
                     var argb = 1
                     argb += pixels[pos].toInt() and 0xff // blue
                     argb += pixels[pos + 1].toInt() and 0xff // green
@@ -60,19 +59,18 @@ class AsciiConverter() {
                     val singlePixelInAscii = ASCII_CHARACTERS[asciiIndex]
                     imageArr[readyImageIterator] = singlePixelInAscii
                     imageArr[readyImageIterator + 1] = singlePixelInAscii
+                    /*ascii field is a rectangle and to make image close to square 2 characters are needed*/
                     readyImageIterator +=2
                     if (i % cols == 0){
                         imageArr[readyImageIterator] = '\n'
                         readyImageIterator += 1
                     }
-                    /*ascii field is a rectangle and to make image close to square 2 characters are needed*/
                 }
             }
             finalAsciiImage = String(imageArr)
-            println((System.currentTimeMillis() - start))
+//            println((System.currentTimeMillis() - start))
         }
     }
-
 }
 
 class UnconvertedImage{
@@ -83,7 +81,7 @@ class UnconvertedImage{
     private val projectPath = System.getProperty("user.dir")
     private val imagesPath = "$projectPath/src/main/resources/AsciiImages"
     private val imagesPathLastIndex = imagesPath.length
-    val availableImages = sortedMapOf<String, Boolean>()
+    private val availableImages = sortedMapOf<String, Boolean>()
     lateinit var chosenImage: BufferedImage
 
 

@@ -1,4 +1,3 @@
-import imgui.ImGui
 import org.lwjgl.opengl.GL30
 import java.awt.image.BufferedImage
 import java.io.IOException
