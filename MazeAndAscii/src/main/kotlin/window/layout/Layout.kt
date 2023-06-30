@@ -6,6 +6,11 @@ import ascii_converter.AsciiConverter
 import ascii_converter.UnconvertedImage
 import fonts.FontsLoader
 import imgui.ImGui
+import imgui.ImGuiIO
+import maze.MazeColor
+import maze.MazeDrawer
+import kotlinx.coroutines.*
+import maze.Backtracking
 
 class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     private val availableGridsHorizontally: Int = 16
@@ -15,7 +20,6 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
     private val ascii = UnconvertedImage()
     private val settingsWindow = SettingsWindow()
     private val style = ImGui.getStyle()
-    private val maze = Array(10){BooleanArray(10){false}}
 
     fun showLayout(){
         if (!settingsWindow.selected){
@@ -26,8 +30,8 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
         else{
             showOriginalImage(15)
             showImageChooser(15)
-            showMaze(1,1)
-            showAsciiImage(3)
+            showMaze()
+            showAsciiImage(2)
         }
     }
 
@@ -38,7 +42,6 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
 
     private fun showImageChooser(fontSize: Int){
         fontsLoader.changeFontSize(fontSize, "gruppo")
-
         ImGui.begin("Image Chooser")
         ImGui.setWindowPos(0f, 0f)
         ImGui.setWindowSize(singleGridWidth * 2,singleGridHeight * 4)
@@ -78,34 +81,59 @@ class Layout(val window: Frame, private val fontsLoader: FontsLoader) {
 
     }
 
-    private fun showMaze(width: Int, height: Int){
+    private fun showMaze(){
         fontsLoader.changeFontSize(15,"gruppo")
+        val windowWidth = singleGridWidth * 8
+        val windowHeight = singleGridHeight * 5
+        val buttonWidth = (windowWidth -100) / MazeDrawer.cols
+        val buttonHeight = (windowHeight - 150) / MazeDrawer.rows
 
         ImGui.begin("Maze")
         ImGui.setWindowPos(0f,singleGridHeight * 4)
-        ImGui.setWindowSize(singleGridWidth * 6,singleGridHeight * 5)
+        ImGui.setWindowSize(windowWidth, windowHeight)
         style.setItemSpacing(1f,1f)
 
-        for (y in 0 until 10){
-            for (x in 0 until 10){
+        if (MazeDrawer.toGenerateGrid){
 
-                if (maze[y][x]){
-                    ImGui.pushStyleColor(21, 255f, 0f, 0f, 1f)
-                }
-                else{
-                    ImGui.pushStyleColor(21, 0f, 255f, 0f, 1f)
-                }
-                val button = ImGui.button("##$y$x", 50f, 50f)
-                if (button){
-                    maze[y][x] = !maze[y][x]
-                }
-                if (x != 9){
+            runBlocking { MazeDrawer.generateGrid() }
+//            MazeDrawer.toGenerateGrid = false
+        }
+
+        for (row in 0 until MazeDrawer.rows){
+            for (col in 0 until MazeDrawer.cols){
+
+                val color = MazeDrawer.maze[row][col]
+                ImGui.pushStyleColor(21, color.r, color.g, color.b, color.a)
+
+                val button = ImGui.button("##$row$col", buttonWidth, buttonHeight)
+
+                if (col != MazeDrawer.cols -1){
                     ImGui.sameLine()
                 }
 
                 ImGui.popStyleColor()
             }
         }
+        val genGridButton = ImGui.button("Generate Grid")
+        ImGui.sameLine()
+        val genMaze = ImGui.button("Generate Maze")
+        ImGui.sameLine()
+
+        if (genMaze){
+            Backtracking()
+        }
+        val solveMaze = ImGui.button("Solve Maze")
+        if(genGridButton){
+            MazeDrawer.toGenerateGrid = true
+        }
+        val sliderValue = arrayOf( floatArrayOf(MazeDrawer.rows.toFloat()), floatArrayOf(MazeDrawer.cols.toFloat()))
+        val rows = ImGui.sliderFloat("Number of rows", sliderValue[0], 1f, 100f)
+        val cols = ImGui.sliderFloat("Number of columns", sliderValue[1], 1f, 100f)
+
+        if (rows){
+            MazeDrawer.changeMazeDimensions(sliderValue)
+        }
+
 
         ImGui.end()
 
