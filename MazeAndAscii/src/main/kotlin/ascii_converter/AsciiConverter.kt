@@ -79,7 +79,7 @@ class UnconvertedImage{
     }
 
     private val projectPath = System.getProperty("user.dir")
-    private val imagesPath = "$projectPath/src/main/resources/AsciiImages"
+    private val imagesPath = "/home/mioshek/Documents/AsciiImages"
     private val imagesPathLastIndex = imagesPath.length
     private val availableImages = sortedMapOf<String, Boolean>()
     lateinit var chosenImage: BufferedImage
@@ -87,7 +87,6 @@ class UnconvertedImage{
 
     fun chooseImage(){
         File(imagesPath).walkTopDown().forEach {
-
             val imageName = it.toString()
             val relativeImagePath = imageName.subSequence(imagesPathLastIndex, imageName.length).toString()
             if (canBeCreated(relativeImagePath, imageName)){
